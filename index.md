@@ -1,37 +1,53 @@
-## Welcome to GitHub Pages
+<!DOCTYPE html>
+<html lang="en">
 
-You can use the [editor on GitHub](https://github.com/frankcrossley/webmapping-asteroids/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+<head>
+  <title>Web Mapping Tutorial 1</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.16/p5.min.js" type="text/javascript"></script>
+  <script src="https://unpkg.com/mappa-mundi/dist/mappa.js" type="text/javascript"></script>
+</head>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+<body>
+  <script>
+  let myMap;
+let canvas;
+const mappa = new Mappa('Leaflet');
+const options = {
+  lat: 49,
+  lng: -123,
+  zoom: 3,
+  style: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
+}
 
-### Markdown
+function setup(){
+  canvas = createCanvas(640,640);
+  myMap = mappa.tileMap(options);
+  myMap.overlay(canvas)
+  meteorites = loadTable('https://raw.githubusercontent.com/cvalenzuela/Mappa/master/tutorials/basic/Meteorite_Landings.csv', 'csv', 'header');
+  myMap.onChange(drawMeteorites);
+  fill(214, 81, 81);
+  stroke(138, 26, 26);
+}
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+function draw(){
+}
 
-```markdown
-Syntax highlighted code block
+function drawMeteorites() {
+  clear();
 
-# Header 1
-## Header 2
-### Header 3
+  for (let i = 0; i < meteorites.getRowCount(); i++) {
+    const latitude = Number(meteorites.getString(i, 'reclat'));
+    const longitude = Number(meteorites.getString(i, 'reclong'));
+    if (myMap.map.getBounds().contains({lat: latitude, lng: longitude})) {
+      const pos = myMap.latLngToPixel(latitude, longitude);
+      let size = meteorites.getString(i, 'mass (g)');
+      size = map(size, 558, 60000000, 1, 25) + myMap.zoom();
+      ellipse(pos.x, pos.y, size, size);
+      //rect(pos.x, pos.y, size, size); //Code written but no cartographic improvements from it
+    }
+  }
+}
+  </script>
+</body>
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/frankcrossley/webmapping-asteroids/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+</html>
